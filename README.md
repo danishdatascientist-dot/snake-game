@@ -2,7 +2,7 @@
 
 > A feature-packed, cyberpunk-flavored Snake game built with pure HTML, CSS & JavaScript. No frameworks. No dependencies. Just vibes.
 
-**[🎮 Play Live →](https://danish7861.github.io/snake-game/)**
+**[🎮 Play Live →](https://danishdatascientist-dot.github.io/snake-game/)**
 
 ---
 
