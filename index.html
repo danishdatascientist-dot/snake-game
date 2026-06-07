@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SERPENT-X 🐍 Fun Snake Game</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════ ANIMATED BG ═══════════════════════════════ -->
+  <canvas id="bgCanvas"></canvas>
+  <div class="scanlines"></div>
+
+  <!-- ═══════════════════════════════ MAIN MENU ════════════════════════════════ -->
+  <div id="mainMenu" class="screen active">
+    <div class="menu-glow-ring"></div>
+    <div class="title-block">
+      <span class="title-emoji">🐍</span>
+      <h1 class="game-title">SERPENT<span class="accent2">-X</span></h1>
+      <div class="title-tagline">The Ultimate Snake Adventure!</div>
+    </div>
+
+    <div class="menu-panel">
+      <div class="panel-header">🎮 Choose Your Settings</div>
+
+      <div class="menu-row">
+        <label class="menu-label">DIFFICULTY</label>
+        <div class="selector-group" id="difficultySelector">
+          <button class="sel-btn active" data-value="easy">EASY</button>
+          <button class="sel-btn" data-value="medium">MED</button>
+          <button class="sel-btn" data-value="hard">HARD</button>
+          <button class="sel-btn" data-value="insane">INSANE</button>
+        </div>
+      </div>
+
+      <div class="menu-row">
+        <label class="menu-label">THEME</label>
+        <div class="selector-group" id="themeSelector">
+          <button class="sel-btn active" data-value="cyberpunk">🌆 Cyber</button>
+          <button class="sel-btn" data-value="candy">🍭 Candy</button>
+          <button class="sel-btn" data-value="jungle">🌿 Jungle</button>
+          <button class="sel-btn" data-value="ocean">🌊 Ocean</button>
+          <button class="sel-btn" data-value="sunset">🌅 Sunset</button>
+        </div>
+      </div>
+
+      <button id="playBtn" class="btn-primary">
+        <span class="btn-glitch">🐍 PLAY NOW!</span>
+        <div class="btn-scan"></div>
+      </button>
+
+      <div class="menu-secondary-btns">
+        <button class="btn-ghost" id="leaderboardBtn">🏆 Leaderboard</button>
+        <button class="btn-ghost" id="statsBtn">📊 Stats</button>
+        <button class="btn-ghost" id="howToBtn">❓ How to Play</button>
+      </div>
+    </div>
+
+    <div class="menu-instructions" id="menuInstructions" style="display:none">
+      <div class="instr-grid">
+        <div class="instr-item"><kbd>↑↓←→</kbd> <span>Move</span></div>
+        <div class="instr-item"><kbd>WASD</kbd> <span>Move</span></div>
+        <div class="instr-item"><kbd>ESC</kbd> <span>Pause</span></div>
+        <div class="instr-item"><kbd>P</kbd> <span>Pause</span></div>
+        <div class="instr-item">🟩 Normal</div>
+        <div class="instr-item">🟡 Golden +5</div>
+        <div class="instr-item">💎 Diamond +10</div>
+        <div class="instr-item">💀 Poison -3</div>
+        <div class="instr-item">⚡ Speed Boost</div>
+        <div class="instr-item">❄️ Slow Mode</div>
+        <div class="instr-item">🛡 Shield</div>
+        <div class="instr-item">👻 Ghost</div>
+        <div class="instr-item">🧲 Magnet</div>
+        <div class="instr-item">✖2 Double Pts</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════ GAME SCREEN ═══════════════════════════════ -->
+  <div id="gameScreen" class="screen">
+    <!-- HUD -->
+    <div id="hud">
+      <div class="hud-left">
+        <div class="hud-item">
+          <div class="hud-label">SCORE</div>
+          <div class="hud-val" id="scoreDisplay">0</div>
+        </div>
+        <div class="hud-item">
+          <div class="hud-label">BEST</div>
+          <div class="hud-val" id="hiScoreDisplay">0</div>
+        </div>
+        <div class="hud-item">
+          <div class="hud-label">LEVEL</div>
+          <div class="hud-val" id="levelDisplay">1</div>
+        </div>
+      </div>
+      <div class="hud-center">
+        <div class="hud-logo">🐍 SERPENT-X</div>
+        <div class="hud-difficulty" id="diffDisplay">EASY</div>
+      </div>
+      <div class="hud-right">
+        <div class="hud-item">
+          <div class="hud-label">FOOD</div>
+          <div class="hud-val" id="foodDisplay">0</div>
+        </div>
+        <div class="hud-item">
+          <div class="hud-label">LENGTH</div>
+          <div class="hud-val" id="lengthDisplay">3</div>
+        </div>
+        <button id="aiToggleBtn" class="btn-tiny">AI: OFF</button>
+      </div>
+    </div>
+
+    <!-- Active Power-ups bar -->
+    <div id="powerupBar"></div>
+
+    <!-- Canvas wrapper -->
+    <div id="canvasWrapper">
+      <canvas id="gameCanvas"></canvas>
+      <canvas id="particleCanvas"></canvas>
+
+      <!-- Pause overlay -->
+      <div id="pauseOverlay" style="display:none">
+        <div class="pause-box">
+          <div class="pause-title">// PAUSED //</div>
+          <button class="btn-primary small" id="resumeBtn">RESUME</button>
+          <button class="btn-ghost small" id="menuFromPauseBtn">MAIN MENU</button>
+        </div>
+      </div>
+
+      <!-- Achievement popup -->
+      <div id="achievementPopup"></div>
+    </div>
+
+    <!-- Mobile controls -->
+    <div id="mobileControls">
+      <div class="d-pad">
+        <button class="d-btn up" id="mUp">▲</button>
+        <div class="d-row">
+          <button class="d-btn left" id="mLeft">◀</button>
+          <button class="d-btn center" disabled>●</button>
+          <button class="d-btn right" id="mRight">▶</button>
+        </div>
+        <button class="d-btn down" id="mDown">▼</button>
+      </div>
+      <div class="mobile-actions">
+        <button class="btn-tiny" id="pauseMobileBtn">⏸</button>
+        <button class="btn-tiny" id="aiMobileBtn">🤖</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════ GAME OVER ════════════════════════════════ -->
+  <div id="gameOverScreen" class="screen">
+    <div class="go-container">
+      <div class="go-glitch-title" data-text="GAME OVER!">GAME OVER! 💥</div>
+      <div class="go-sub">Better luck next time! You can do it! 💪</div>
+
+      <div class="go-stats">
+        <div class="go-stat"><span class="gs-label">FINAL SCORE</span><span class="gs-val" id="goScore">0</span></div>
+        <div class="go-stat"><span class="gs-label">HIGH SCORE</span><span class="gs-val" id="goHiScore">0</span></div>
+        <div class="go-stat"><span class="gs-label">LEVEL</span><span class="gs-val" id="goLevel">1</span></div>
+        <div class="go-stat"><span class="gs-label">FOOD EATEN</span><span class="gs-val" id="goFood">0</span></div>
+      </div>
+
+      <div id="newRecordBadge" style="display:none" class="new-record">🏆 NEW RECORD!</div>
+
+      <div class="go-buttons">
+        <button class="btn-primary" id="restartBtn">🔄 Try Again!</button>
+        <button class="btn-ghost" id="goMenuBtn">🏠 Main Menu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════ LEADERBOARD ═══════════════════════════════ -->
+  <div id="leaderboardScreen" class="screen">
+    <div class="lb-container">
+      <h2 class="lb-title">🏆 Hall of Legends</h2>
+      <div id="lbList"></div>
+      <button class="btn-ghost" id="lbBackBtn">← Back</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════ STATS ════════════════════════════════════ -->
+  <div id="statsScreen" class="screen">
+    <div class="st-container">
+      <h2 class="lb-title">📊 Your Stats</h2>
+      <div id="statsList"></div>
+      <button class="btn-ghost" id="stBackBtn">← Back</button>
+    </div>
+  </div>
+
+  <!-- Level up banner -->
+  <div id="levelUpBanner" style="display:none">
+    <div class="lup-inner">LEVEL UP! <span id="lupLevel"></span></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
